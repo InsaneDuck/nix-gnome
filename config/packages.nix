@@ -13,12 +13,15 @@
          docker
          efibootmgr
          fish
+         firefox
+         galaxy-buds-client
          gcc
          gcolor3
          git
          github-desktop
          gnupg
          godot_4
+         google-chrome
          gparted
          gradle
          gthumb
@@ -59,9 +62,10 @@
          vim
          virt-manager
          vlc
+         vscode
          wget
          yarn
          yarn-bash-completion
-         youtube-dl
+
       ];
 }

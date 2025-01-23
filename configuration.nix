@@ -1,32 +1,41 @@
-{lib,config, pkgs, ... }:
+{lib,config, pkgs, inputs, ... }:
 
 {
   imports =
     [
       # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./packages.nix
-      ./gnome.nix
+      ./common/common.nix
+      <home-manager/nixos>
+      ##./home/home.nix
+      ./gnome/gnome.nix
     ];
-
+  # nix.settings.experimental-features = [ "nix-command" "flakes" ];
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  boot.loader.systemd-boot.consoleMode= "max";
+  boot.loader = {
+    systemd-boot.enable = true;
+    systemd-boot.consoleMode= "max";
+    systemd-boot.configurationLimit=5;
+    efi.canTouchEfiVariables = true;
+  };
 
-  system.autoUpgrade.enable = true;
-  system.autoUpgrade.channel = "https://channels.nixos.org/nixos-unstable";
+  system.autoUpgrade = {
+      enable = true;
+      dates = "02:00";
+      randomizedDelaySec = "45min";
+  };
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.11"; # Did you read the comment?
 
   time = {
     hardwareClockInLocalTime = true;
-    timeZone = "Europe/London";
+    timeZone = "Asia/Kolkata";
   };
 
   # networking
@@ -57,10 +66,9 @@
   };
 
   # Make sure opengl is enabled
-  hardware.opengl = {
+  hardware.graphics = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = true;
+    enable32Bit = true;
   };
 
   hardware.nvidia = {
@@ -74,51 +82,7 @@
         nvidiaBusId = "PCI:1:0:0";
     };
   };
-  hardware.pulseaudio.enable = false;
-
-  services = {
-    xserver ={
-        enable = true;
-        xkb.layout = "us";
-        xkb.variant = "";
-        displayManager.gdm.enable = true;
-        desktopManager.gnome.enable = true;
-        videoDrivers = ["nvidia"];
-    };
-    
-    avahi = {
-        enable = true;
-        hostName = "insaneduck-nixos";
-        nssmdns4 = true;
-        publish = {
-          enable = true;
-          addresses = true;
-          domain = true;
-          hinfo = true;
-          userServices = true;
-          workstation = true;
-        };
-    };
-   
-    printing.enable = true;
-    
-    pipewire = {
-        enable = true;
-        alsa.enable = true;
-        alsa.support32Bit = true;
-        pulse.enable = true;
-    };
-    
-    resolved = {
-      enable = true;
-      dnssec = "true";
-      domains = [ "~." ];
-      fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
-      extraConfig = ''
-        DNSOverTLS=yes
-      '';
-    };
-  };
+  services.pulseaudio.enable = false;
 
   specialisation = {
     external-display.configuration = {
@@ -136,26 +100,13 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.siva = {
-    isNormalUser = true;
-    description = "Siva";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-      kate
-    ];
-  };
   virtualisation.libvirtd.enable = true;
   # Allow unfree packages
   nixpkgs.config = {
      allowUnfree = true;
   };
 
+  networking.networkmanager.wifi.powersave=false;
 
-  xdg.mime.defaultApplications = {
-    "application/pdf" = "firefox.desktop";
-    "inode/directory" = "org.gnome.Nautilus.desktop";
-    "video/mp4" = "vlc.desktop";
-  };
+  
 }
